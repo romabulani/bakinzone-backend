@@ -67,7 +67,7 @@ const deleteVideoFromHistoryHandler = async (req, res) => {
   }
 };
 
-const clearVideosFromHandler = async (req, res) => {
+const clearVideosFromHistoryHandler = async (req, res) => {
   try {
     const userId = req.userId;
     const updatedUser = await User.findByIdAndDelete(
@@ -90,5 +90,5 @@ module.exports = {
   getVideosInHistoryHandler,
   postVideoToHistoryHandler,
   deleteVideoFromHistoryHandler,
-  clearVideosFromHandler,
+  clearVideosFromHistoryHandler,
 };
