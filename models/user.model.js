@@ -1,9 +1,18 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Video = require("../models/video.model");
+const videoSchema = Schema({
+  _id: String,
+  title: String,
+  videoUrl: String,
+  category: String,
+  uploadDate: Date,
+  viewCount: Number,
+  description: String,
+});
+
 const playlistSchema = Schema(
   {
-    videos: [Video],
+    videos: [videoSchema],
     name: String,
   },
   {
@@ -22,10 +31,10 @@ const userSchema = Schema(
     lastName: String,
     email: String,
     password: String,
-    likes: [Video],
-    history: [Video],
+    likes: [videoSchema],
+    history: [videoSchema],
     playlists: [playlistSchema],
-    watchlater: [Video],
+    watchlater: [videoSchema],
     notes: [noteSchema],
   },
   {
