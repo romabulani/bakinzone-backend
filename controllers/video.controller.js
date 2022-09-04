@@ -37,8 +37,30 @@ const postVideoHandler = async (req, res) => {
   }
 };
 
+const updateVideoViewCountHandler = async (req, res) => {
+  try {
+    const updatedViewCount = req.body;
+    const { videoId } = req.params;
+    const updatedVideo = await Video.findByIdAndUpdate(
+      videoId,
+      {
+        $set: {
+          viewCount: updatedViewCount,
+        },
+      },
+      { new: true }
+    );
+    return res.status(200).json({ video: updatedVideo });
+  } catch (e) {
+    return res.status(500).json({
+      message: "Couldn't update video views. Please try again later.",
+    });
+  }
+};
+
 module.exports = {
   getAllVideosHandler,
   getVideoHandler,
   postVideoHandler,
+  updateVideoViewCountHandler,
 };
