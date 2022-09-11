@@ -68,7 +68,6 @@ const signupHandler = async (req, res) => {
 const loginHandler = async (req, res) => {
   const data = req.body;
   let userFound;
-
   try {
     userFound = await User.findOne({ email: data.email });
   } catch (e) {
@@ -78,7 +77,7 @@ const loginHandler = async (req, res) => {
   }
 
   if (!userFound)
-    res.status(401).json({
+    return res.status(401).json({
       message: "Invalid credentials. Check your username and password.",
     });
 
@@ -91,7 +90,7 @@ const loginHandler = async (req, res) => {
       .json({ message: "Login failed.Please try again later!" });
   }
   if (!isPasswordValid)
-    res.status(401).json({
+    return res.status(401).json({
       message: "Invalid credentials. Check your username and password.",
     });
 
@@ -100,7 +99,7 @@ const loginHandler = async (req, res) => {
     process.env.SECRET_KEY,
     { expiresIn: "2h" }
   );
-  res.status(200).json({
+  return res.status(200).json({
     message: "Login successful",
     user: {
       token,
