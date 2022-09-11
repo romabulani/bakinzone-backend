@@ -1,5 +1,4 @@
 const User = require("../models/user.model");
-
 const getPlaylistsHandler = async (req, res) => {
   try {
     const userId = req.userId;
@@ -16,7 +15,7 @@ const postPlaylistHandler = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
-    const playlist = req.body;
+    const { playlist } = req.body;
     const updatedPlaylists = [playlist, ...user.playlists];
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -27,7 +26,7 @@ const postPlaylistHandler = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({ playlists: updatedUser.playlists });
+    return res.status(201).json({ playlists: updatedUser.playlists });
   } catch (e) {
     return res.status(500).json({
       message: "Couldn't post playlist. Please try again later.",
@@ -41,14 +40,16 @@ const deletePlaylistHandler = async (req, res) => {
     const { playlistId } = req.params;
     let playlists = user.playlists;
 
-    if (!playlists.find((playlist) => playlist._id === playlistId))
+    if (!playlists.find((playlist) => playlist._id.toString() === playlistId))
       return res.status(400).json({
         message: "Couldn't find playlist.",
       });
 
-    playlists = playlists.filter((playlist) => playlist._id !== playlistId);
+    playlists = playlists.filter(
+      (playlist) => playlist._id.toString() !== playlistId
+    );
 
-    const updatedUser = await User.findByIdAndDelete(
+    const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
@@ -71,7 +72,7 @@ const getVideosFromPlaylistHandler = async (req, res) => {
     const user = await User.findById(userId);
     const { playlists } = user;
     const playlist = playlists.find(
-      (perPlaylist) => perPlaylist._id === playlistId
+      (perPlaylist) => perPlaylist._id.toString() === playlistId
     );
     return res.status(200).json({ playlist });
   } catch (e) {
@@ -85,20 +86,17 @@ const postVideoToPlaylistHandler = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     const { playlistId } = req.params;
-    const video = req.body;
+    const { video } = req.body;
     const playlist = user.playlists.find(
-      (playlist) => playlist._id === playlistId
+      (playlist) => playlist._id.toString() === playlistId
     );
     if (!playlist)
       return res.status(400).json({
         message: "Couldn't find playlist.",
       });
-    const updatedPlaylist = {
-      ...playlist,
-      videos: [video, ...playlist.videos],
-    };
+    playlist.videos.push(video);
     const updatedPlaylists = user.playlists.map((perPlaylist) =>
-      perPlaylist._id === playlistId ? updatedPlaylist : perPlaylist
+      perPlaylist._id.toString() === playlistId ? playlist : perPlaylist
     );
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -109,7 +107,7 @@ const postVideoToPlaylistHandler = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({ playlist: updatedPlaylist });
+    return res.status(201).json({ playlists: updatedUser.playlists });
   } catch (e) {
     return res.status(500).json({
       message: "Couldn't post video to playlist. Please try again later.",
@@ -122,21 +120,21 @@ const deleteVideoFromPlaylistHandler = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     const { videoId, playlistId } = req.params;
-    let playlists = user.playlists;
     const playlist = user.playlists.find(
-      (playlist) => playlist._id === playlistId
+      (playlist) => playlist._id.toString() === playlistId
     );
     if (!playlist)
       return res.status(400).json({
         message: "Couldn't find playlist.",
       });
 
+    const videoIndex = playlist.videos.find((video) => video._id === videoId);
     const updatedPlaylist = {
       ...playlist,
-      videos: playlist.videos.filter((video) => video._id !== videoId),
+      videos: playlist.videos.splice(videoIndex, 1),
     };
     const updatedPlaylists = user.playlists.map((perPlaylist) =>
-      perPlaylist._id === playlistId ? updatedPlaylist : perPlaylist
+      perPlaylist._id.toString() === playlistId ? updatedPlaylist : perPlaylist
     );
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -147,7 +145,7 @@ const deleteVideoFromPlaylistHandler = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({ playlist: updatedPlaylist });
+    return res.status(200).json({ playlists: updatedUser.playlists });
   } catch (e) {
     return res.status(500).json({
       message: "Couldn't delete video from playlist. Please try again later.",

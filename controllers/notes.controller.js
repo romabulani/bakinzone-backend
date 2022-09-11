@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const ObjectID = require("mongodb").ObjectId;
 
 const getNotesHandler = async (req, res) => {
   try {
@@ -17,7 +18,7 @@ const postNoteHandler = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
-    const note = req.body;
+    const { note } = req.body;
     const updatedNotesArray = [note, ...user.notes];
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -28,7 +29,7 @@ const postNoteHandler = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({ notes: updatedUser.notes });
+    return res.status(201).json({ notes: updatedUser.notes });
   } catch (e) {
     return res.status(500).json({
       message: "Couldn't post note. Please try again later.",
@@ -42,15 +43,13 @@ const deletNoteHandler = async (req, res) => {
     const user = await User.findById(userId);
     const { noteId } = req.params;
     let notesArray = user.notes;
-
-    if (!notesArray.find((note) => note._id === noteId))
+    if (!notesArray.find((note) => note._id.toString() === noteId))
       return res.status(400).json({
         message: "Couldn't find note.",
       });
 
-    notesArray = notesArray.filter((note) => note._id !== noteId);
-
-    const updatedUser = await User.findByIdAndDelete(
+    notesArray = notesArray.filter((note) => note._id.toString() !== noteId);
+    const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
@@ -71,13 +70,12 @@ const updateNoteHandler = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
-    const updatedNote = req.body;
+    const { note } = req.body;
     const { noteId } = req.params;
 
-    const updatedNotes = user.notes.map((note) =>
-      note._id === noteId ? updatedNote : note
+    const updatedNotes = user.notes.map((eachNote) =>
+      eachNote._id.toString() === noteId ? note : eachNote
     );
-
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {

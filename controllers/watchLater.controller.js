@@ -17,7 +17,7 @@ const postVideoToWatchlaterVideosHandler = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
-    const video = req.body;
+    const { video } = req.body;
     const updatedWatchlater = [video, ...user.watchlater];
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -28,7 +28,7 @@ const postVideoToWatchlaterVideosHandler = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({ watchlater: updatedUser.watchlater });
+    return res.status(201).json({ watchlater: updatedUser.watchlater });
   } catch (e) {
     return res.status(500).json({
       message:
@@ -51,7 +51,7 @@ const deleteVideoFromWatchlaterVideosHandler = async (req, res) => {
 
     watchlater = watchlater.filter((video) => video._id !== videoId);
 
-    const updatedUser = await User.findByIdAndDelete(
+    const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {

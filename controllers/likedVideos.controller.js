@@ -17,7 +17,7 @@ const postVideoToLikedVideosHandler = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
-    const video = req.body;
+    const { video } = req.body;
     const updatedLikes = [video, ...user.likes];
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -28,7 +28,7 @@ const postVideoToLikedVideosHandler = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({ likes: updatedUser.likes });
+    return res.status(201).json({ likes: updatedUser.likes });
   } catch (e) {
     return res.status(500).json({
       message: "Couldn't post video to liked videos. Please try again later.",
@@ -50,7 +50,7 @@ const deleteVideoFromLikedVideosHandler = async (req, res) => {
 
     likes = likes.filter((likedVideo) => likedVideo._id !== videoId);
 
-    const updatedUser = await User.findByIdAndDelete(
+    const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {

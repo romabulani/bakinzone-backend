@@ -17,7 +17,7 @@ const postVideoToHistoryHandler = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
-    const video = req.body;
+    const { video } = req.body;
     const updatedHistory = [video, ...user.history];
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -28,7 +28,7 @@ const postVideoToHistoryHandler = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json({ history: updatedUser.history });
+    return res.status(201).json({ history: updatedUser.history });
   } catch (e) {
     return res.status(500).json({
       message: "Couldn't post video to user's history. Please try again later.",
@@ -50,7 +50,7 @@ const deleteVideoFromHistoryHandler = async (req, res) => {
 
     history = history.filter((video) => video._id !== videoId);
 
-    const updatedUser = await User.findByIdAndDelete(
+    const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
@@ -70,7 +70,7 @@ const deleteVideoFromHistoryHandler = async (req, res) => {
 const clearVideosFromHistoryHandler = async (req, res) => {
   try {
     const userId = req.userId;
-    const updatedUser = await User.findByIdAndDelete(
+    const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
