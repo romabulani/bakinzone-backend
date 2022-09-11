@@ -6,8 +6,8 @@ const {
   updateVideoViewCountHandler,
 } = require("../controllers/video.controller");
 
-router.route("/").get(getAllVideosHandler).post(updateVideoViewCountHandler);
+router.route("/").get(getAllVideosHandler);
 
 router.get("/:videoId", getVideoHandler);
-
+router.get("/:videoId/viewcount", updateVideoViewCountHandler);
 module.exports = router;
