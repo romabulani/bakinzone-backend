@@ -36,13 +36,16 @@ const {
   deleteVideoFromWatchlaterVideosHandler,
 } = require("../controllers/watchLater.controller");
 
-const { postVideoHandler } = require("../controllers/video.controller");
+const {
+  getUploadedVideosHandler,
+  postUploadVideoHandler,
+} = require("../controllers/video.controller");
 
 router
   .route("/history")
   .get(getVideosInHistoryHandler)
   .post(postVideoToHistoryHandler);
-router.route("/histoy/:videoId").delete(deleteVideoFromHistoryHandler);
+router.route("/history/:videoId").delete(deleteVideoFromHistoryHandler);
 router.route("/history/all").get(clearVideosFromHistoryHandler);
 
 router
@@ -62,7 +65,10 @@ router
 router.route("/notes").get(getNotesHandler).post(postNoteHandler);
 router.route("/notes/:noteId").post(updateNoteHandler).delete(deletNoteHandler);
 
-router.route("/videos/:videoId").post(postVideoHandler);
+router
+  .route("/uploadvideo")
+  .post(postUploadVideoHandler)
+  .get(getUploadedVideosHandler);
 
 router.route("/playlists").get(getPlaylistsHandler).post(postPlaylistHandler);
 router

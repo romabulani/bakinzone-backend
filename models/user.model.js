@@ -25,6 +25,7 @@ const noteSchema = Schema({
   playingTime: Number,
   videoId: String,
 });
+
 const userSchema = Schema(
   {
     firstName: String,
@@ -36,6 +37,7 @@ const userSchema = Schema(
     playlists: [playlistSchema],
     watchlater: [videoSchema],
     notes: [noteSchema],
+    uploadedVideos: [videoSchema],
   },
   {
     timestamps: true,

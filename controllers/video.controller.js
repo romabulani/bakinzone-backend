@@ -1,5 +1,5 @@
 const Video = require("../models/video.model");
-
+const User = require("../models/user.model");
 const getAllVideosHandler = async (req, res) => {
   try {
     let videos = [];
@@ -24,28 +24,52 @@ const getVideoHandler = async (req, res) => {
   }
 };
 
-const postVideoHandler = async (req, res) => {
+const getUploadedVideosHandler = async (req, res) => {
   try {
-    const data = req.body;
-    await Video.insertMany(data);
-    const videos = await Video.find({});
-    return res.status(201).json({ videos });
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    const { uploadedVideos } = user;
+    return res.status(200).json({ uploadedVideos });
   } catch (e) {
-    return res
-      .status(500)
-      .json({ message: "Could not add videos. Please try again later." });
+    return res.status(500).json({
+      message: "Couldn't get uploaded Videos. Please try again later.",
+    });
+  }
+};
+
+const postUploadVideoHandler = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    const { uploadVideo } = req.body;
+    const updatedUploadedVideos = [uploadVideo, ...user.uploadedVideos];
+    await Video.create(uploadVideo);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          uploadedVideos: updatedUploadedVideos,
+        },
+      },
+      { new: true }
+    );
+    return res.status(201).json({ uploadedVideos: updatedUser.uploadedVideos });
+  } catch (e) {
+    return res.status(500).json({
+      message: "Couldn't post note. Please try again later.",
+    });
   }
 };
 
 const updateVideoViewCountHandler = async (req, res) => {
   try {
-    const updatedViewCount = req.body;
     const { videoId } = req.params;
+    const video = await Video.findById(videoId);
     const updatedVideo = await Video.findByIdAndUpdate(
       videoId,
       {
         $set: {
-          viewCount: updatedViewCount,
+          viewCount: video.viewCount + 1,
         },
       },
       { new: true }
@@ -61,6 +85,7 @@ const updateVideoViewCountHandler = async (req, res) => {
 module.exports = {
   getAllVideosHandler,
   getVideoHandler,
-  postVideoHandler,
+  getUploadedVideosHandler,
+  postUploadVideoHandler,
   updateVideoViewCountHandler,
 };
