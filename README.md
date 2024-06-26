@@ -31,6 +31,6 @@
 - Add, Edit and Delete Notes on each video
 
 
-Live Link for BackEnd is [here](https://bakinzone-server.cyclic.app/)
+Live Link for BackEnd is [here](https://bakinzone-server.netlify.app/)
 
 Live Link for FrontEnd is [here](https://bakinzone.netlify.app/)
